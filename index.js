@@ -20,10 +20,25 @@ mongoose
   });
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+
 
 // routes
 
 app.use("/api/v1/auth", authRouter);
+
+
+// global error-handling middleware
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  const message = err.message || "Internal server error";
+  res.status(statusCode).json({
+    success: false,
+    statusCode,
+    message,
+  });
+});
+
+// start the server 
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
