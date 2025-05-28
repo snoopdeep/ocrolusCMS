@@ -2,12 +2,16 @@ import express from "express";
 import dotenv from "dotenv";
 dotenv.config();
 import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
 import authRouter from "./routes/auth.route.js";
+import articleRouter from "./routes/article.route.js";
 
 const app = express();
 
-// parse the json data 
+// parse the json data
 app.use(express.json());
+// cookie parser middleware which will parse the cookies from the request
+app.use(cookieParser());
 
 // connecting to the database
 mongoose
@@ -21,11 +25,9 @@ mongoose
 
 const port = process.env.PORT || 3000;
 
-
 // routes
-
 app.use("/api/v1/auth", authRouter);
-
+app.use("/api/v1/articles", articleRouter);
 
 // global error-handling middleware
 app.use((err, req, res, next) => {
@@ -38,7 +40,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// start the server 
+// start the server
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

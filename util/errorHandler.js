@@ -3,5 +3,5 @@ export const errorHandler=(statusCode,message)=>{
     console.log('errorHandler.js',error);
     error.statusCode=statusCode||500;
     error.message=message||"Internal Server Error";
-    return error;;
+    return error;
 }
