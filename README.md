@@ -8,6 +8,10 @@ A containerized Node.js application with MongoDB database support.
 - [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) (for Methods 2 & 3)
 
 ---
+### API Documentation 
+```bash 
+https://documenter.getpostman.com/view/32714719/2sB2qfAK3s
+```
 
 ## 🚀 Three Ways to Run the Application
 
@@ -133,7 +137,7 @@ Choose the method that best fits your needs:
 
 ---
 
-## 🛠️ Setup Instructions
+## 🛠️ Database Migration Guide
 
 1. **Install dependencies:**
    ```bash
