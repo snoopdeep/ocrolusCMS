@@ -32,6 +32,9 @@ Choose the method that best fits your needs:
    ```
 
 2. **Get environment file**
+```bash
+   mkdir .env
+   ```
    - Place the `.env` file in the project root directory
 
 3. **Install dependencies**
@@ -45,7 +48,7 @@ Choose the method that best fits your needs:
    ```
 
 5. **Access the application**
-   - Open your browser: **http://localhost:3000**
+   - Access the backend service at: **http://localhost:3000**
    - Uses cloud MongoDB database with existing data
 
 ---
@@ -63,6 +66,9 @@ Choose the method that best fits your needs:
    ```
 
 2. **Get environment file**
+```bash
+   mkdir .env
+   ```
    - Place the `.env` file in the project root directory
 
 3. **Run the container**
@@ -71,7 +77,7 @@ Choose the method that best fits your needs:
    ```
 
 4. **Access the application**
-   - Open your browser: **http://localhost:3000**
+   - Access the backend service at: **http://localhost:3000**
    - Uses cloud MongoDB database with existing data
 
 5. **Stop the container**
@@ -113,12 +119,12 @@ Choose the method that best fits your needs:
    ```
 
 5. **Access the application**
-   - Open your browser: **http://localhost:3000**
+   - Access the backend service at: **http://localhost:3000**
    - Uses local MongoDB database
 
 6. **Stop the containers**
    ```bash
-   # Stop containers (keeps data)
+   # Stop containers 
    docker-compose down
    
    # Stop containers and remove all data
@@ -133,7 +139,12 @@ Choose the method that best fits your needs:
    ```bash
    npm install
    ```
-
+2. **Get environment file**
+```bash
+   mkdir .env
+   ```
+   - Place the `.env` file in the project root directory
+   
 2. **Available Migration Commands:**
 
    - **Check migration status:**
