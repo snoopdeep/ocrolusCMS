@@ -29,6 +29,10 @@ const port = process.env.PORT || 3000;
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/articles", articleRouter);
 
+app.get("/", (req, res) => {
+  res.send("Ocrolus Assignment API is live 🚀");
+});
+
 // global error-handling middleware
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;

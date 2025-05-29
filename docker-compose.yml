@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  mongo:
+    image: mongo:6.0
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"             # optional: expose locally
+    networks:
+      - app-net
+
+  app:
+    build: .
+    depends_on:
+      - mongo                     # wait for the DB container to start
+    ports:
+      - "3000:3000"
+    restart: always
+    env_file:
+      - .env                      # load your JWT_SECRET_STRING, etc.
+    environment:
+      # override MONGODB_URL to point at our local mongo service
+      MONGODB_URL: "mongodb://mongo:27017/ocrolusDb"
+    volumes:
+      - .:/app                    # mounts code for live development
+    networks:
+      - app-net
+
+volumes:
+  mongo_data:
+
+networks:
+  app-net:
+    driver: bridge
