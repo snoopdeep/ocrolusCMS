@@ -8,36 +8,41 @@ const updateRecentlyViewed = async (userId, articleId) => {
   try {
     // find or create recently viewed document for user
     let recentlyViewed = await RecentlyViewed.findOne({ user_id: userId });
-    
+
     if (!recentlyViewed) {
       // create new document if doesn't exist
       recentlyViewed = new RecentlyViewed({
         user_id: userId,
-        recently_viewed: [{
-          article_id: articleId,
-          viewed_at: new Date()
-        }]
+        recently_viewed: [
+          {
+            article_id: articleId,
+            viewed_at: new Date(),
+          },
+        ],
       });
     } else {
       // remove existing entry if present (to avoid duplicates)
       recentlyViewed.recently_viewed = recentlyViewed.recently_viewed.filter(
-        item => item.article_id.toString() !== articleId.toString()
+        (item) => item.article_id.toString() !== articleId.toString()
       );
       // add new entry at the beginning
       recentlyViewed.recently_viewed.unshift({
         article_id: articleId,
-        viewed_at: new Date()
+        viewed_at: new Date(),
       });
-      
+
       // keep only last 10 viewed articles
       if (recentlyViewed.recently_viewed.length > 10) {
-        recentlyViewed.recently_viewed = recentlyViewed.recently_viewed.slice(0, 10);
+        recentlyViewed.recently_viewed = recentlyViewed.recently_viewed.slice(
+          0,
+          10
+        );
       }
     }
-    
+
     await recentlyViewed.save();
   } catch (error) {
-    console.error('Error updating recently viewed:', error);
+    console.error("Error updating recently viewed:", error);
   }
 };
 
@@ -59,16 +64,16 @@ export const createArticle = async (req, res, next) => {
     ) {
       return next(errorHandler(400, "All content fields are required"));
     }
-     // Check if article already exists
+    // Check if article already exists
     const existingArticle = await Article.findOne({ title });
     if (existingArticle) {
       return next(errorHandler(400, "Article with this title already exists"));
     }
-    // create new article 
+    // create new article
     const article = await Article.create({
       author_id: req.user.id,
       document_type,
-      title:title.toLowerCase(),
+      title: title.toLowerCase(),
       summary,
       content,
     });
@@ -87,16 +92,30 @@ export const createArticle = async (req, res, next) => {
 export const getArticles = async (req, res, next) => {
   // console.log('hi, getArticles');
   try {
-    // Execute the query with pagination and sorting
+    // define the limits for the document fetching per page
+    const DEFAULT_LIMIT = 9;
+    const MAX_LIMIT = 19;
+    const MIN_LIMIT = 1;
+
+    const page = Math.max(1, parseInt(req.query.page)) || 1;
+    const limit = Math.min(MAX_LIMIT,Math.max(MIN_LIMIT, parseInt(req.query.limit) || DEFAULT_LIMIT));
+    const skip = (page - 1) * limit;
+
     const articles = await Article.find()
-      .populate('author_id', 'userName fullName email');
+      .skip(skip)
+      .limit(limit)
+      .populate("author_id", "userName fullName email");
+
+    const totalArticles = await Article.countDocuments();
 
     res.status(200).json({
       success: true,
-      count: articles.length,
-      data: articles
+      count: articles.length, // number of articles in current page
+      total: totalArticles, // total number of articles
+      page, // current page
+      pages: Math.ceil(totalArticles / limit), // total number of pages avaible
+      data: articles,
     });
-    
   } catch (err) {
     next(err);
   }
@@ -107,7 +126,7 @@ export const deleteArticle = async (req, res, next) => {
   // console.log('hi, deleteArticle');
   try {
     const { id } = req.params;
-    // Validate the ID 
+    // Validate the ID
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return next(errorHandler(400, "Invalid article ID"));
     }
@@ -119,16 +138,17 @@ export const deleteArticle = async (req, res, next) => {
     }
     // Check if user is the author, only author can delete
     if (article.author_id.toString() !== req.user.id) {
-      return next(errorHandler(403, "You are not allowed to delete this article."));
+      return next(
+        errorHandler(403, "You are not allowed to delete this article.")
+      );
     }
     // Delete the article
     await Article.findByIdAndDelete(id);
 
     res.status(200).json({
       success: true,
-      message: "Article deleted successfully"
+      message: "Article deleted successfully",
     });
-
   } catch (err) {
     console.log(err);
     next(err);
@@ -147,7 +167,7 @@ export const updateArticle = async (req, res, next) => {
 
     // Find the article
     const article = await Article.findById(id);
-    
+
     // check for existing article
     if (!article) {
       return next(errorHandler(404, "Article not found"));
@@ -164,17 +184,22 @@ export const updateArticle = async (req, res, next) => {
     if (summary) updateData.summary = summary;
     if (content) {
       const contentFields = [
-        'average_monthly_balance',
-        'monthly_deposits',
-        'cash_flow_score',
-        'recommended_loan_amount'
+        "average_monthly_balance",
+        "monthly_deposits",
+        "cash_flow_score",
+        "recommended_loan_amount",
       ];
       // check for invalid fields
       const invalidFields = Object.keys(content).filter(
-        field => !contentFields.includes(field)
+        (field) => !contentFields.includes(field)
       );
       if (invalidFields.length > 0) {
-        return next(errorHandler(400, `Invalid content fields: ${invalidFields.join(', ')}`));
+        return next(
+          errorHandler(
+            400,
+            `Invalid content fields: ${invalidFields.join(", ")}`
+          )
+        );
       }
       // add content to update data
       updateData.content = content;
@@ -189,9 +214,8 @@ export const updateArticle = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Article updated successfully",
-      article: updatedArticle
+      article: updatedArticle,
     });
-
   } catch (err) {
     //mongodb validation error
     if (err.code === 11000) {
@@ -212,8 +236,10 @@ export const getArticleById = async (req, res, next) => {
       return next(errorHandler(400, "Invalid article ID"));
     }
     // Find the article
-    const article = await Article.findById(id)
-      .populate('author_id', 'userName fullName email');
+    const article = await Article.findById(id).populate(
+      "author_id",
+      "userName fullName email"
+    );
 
     if (!article) {
       return next(errorHandler(404, "Article not found"));
@@ -225,9 +251,8 @@ export const getArticleById = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      data: article
+      data: article,
     });
-    
   } catch (err) {
     next(err);
   }
@@ -246,41 +271,45 @@ export const getRecentlyViewedArticles = async (req, res, next) => {
       return next(errorHandler(400, "Invalid user ID format"));
     }
     // recently viewed articles for the user
-    const recentlyViewedData = await RecentlyViewed.findOne({ user_id: userId })
-      .populate({
-        path: 'recently_viewed.article_id',
-        select: 'title summary document_type author_id createdAt',
-        populate: {
-          path: 'author_id',
-          select: 'userName fullName'
-        }
-      });
+    const recentlyViewedData = await RecentlyViewed.findOne({
+      user_id: userId,
+    }).populate({
+      path: "recently_viewed.article_id",
+      select: "title summary document_type author_id createdAt",
+      populate: {
+        path: "author_id",
+        select: "userName fullName",
+      },
+    });
     // If no recently viewed data exists or empty array
-    if (!recentlyViewedData || !recentlyViewedData.recently_viewed || recentlyViewedData.recently_viewed.length === 0) {
+    if (
+      !recentlyViewedData ||
+      !recentlyViewedData.recently_viewed ||
+      recentlyViewedData.recently_viewed.length === 0
+    ) {
       return res.status(200).json({
         success: true,
         message: "No recently viewed articles found",
         count: 0,
-        data: []
+        data: [],
       });
     }
     // Filter out any articles with null article_id
     const validArticles = recentlyViewedData.recently_viewed.filter(
-      item => item.article_id !== null
+      (item) => item.article_id !== null
     );
     // Sort by viewed_at in descending order (most recent first)
-    const sortedArticles =validArticles.sort(
+    const sortedArticles = validArticles.sort(
       (a, b) => new Date(b.viewed_at) - new Date(a.viewed_at)
     );
 
     res.status(200).json({
       success: true,
       count: sortedArticles.length,
-      data: sortedArticles
+      data: sortedArticles,
     });
-
   } catch (err) {
-    console.log('Error in getRecentlyViewedArticles:', err);
+    console.log("Error in getRecentlyViewedArticles:", err);
     next(err);
   }
 };
