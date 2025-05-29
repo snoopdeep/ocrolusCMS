@@ -1,4 +1,4 @@
-# Ocrolus Assignment - Node.js Application
+# Ocrolus Assignment 
 
 A containerized Node.js application with MongoDB database support.
 
