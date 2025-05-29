@@ -37,7 +37,7 @@ Choose the method that best fits your needs:
 
 2. **Get environment file**
 ```bash
-   mkdir .env
+   touch .env
    ```
    - Place the `.env` file in the project root directory
 
@@ -71,7 +71,7 @@ Choose the method that best fits your needs:
 
 2. **Get environment file**
 ```bash
-   mkdir .env
+   touch .env
    ```
    - Place the `.env` file in the project root directory
 
@@ -145,7 +145,7 @@ Choose the method that best fits your needs:
    ```
 2. **Get environment file**
 ```bash
-   mkdir .env
+   touch .env
    ```
    - Place the `.env` file in the project root directory
    
