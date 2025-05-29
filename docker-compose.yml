@@ -25,6 +25,7 @@ services:
       MONGODB_URL: "mongodb://mongo:27017/ocrolusDb"
     volumes:
       - .:/app                    # mounts code for live development
+      - /app/node_modules
     networks:
       - app-net
 
